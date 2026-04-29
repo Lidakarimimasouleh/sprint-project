@@ -1,24 +1,55 @@
-export default function Footer() {
-  const socials = ["Facebook", "Instagram", "X.com", "Linkedin"];
+import { client } from "@/sanity/lib/client";
 
-  const LegalLinks = () => (
-    <div className="flex gap-[34px] items-center">
-      <a
-        href="#"
-        className="text-[12px] font-normal text-white uppercase underline leading-[1.1]"
-        style={{ letterSpacing: "-0.04em" }}
-      >
-        licences
-      </a>
-      <a
-        href="#"
-        className="text-[12px] font-normal text-white uppercase underline leading-[1.1]"
-        style={{ letterSpacing: "-0.04em" }}
-      >
-        Privacy policy
-      </a>
-    </div>
+interface SiteSettings {
+  footerCta?: string;
+  socialFacebook?: string;
+  socialInstagram?: string;
+  socialXcom?: string;
+  socialLinkedin?: string;
+}
+
+async function getSettings(): Promise<SiteSettings | null> {
+  return client.fetch(
+    `*[_type == "siteSettings"][0]{footerCta,socialFacebook,socialInstagram,socialXcom,socialLinkedin}`
   );
+}
+
+const LegalLinks = () => (
+  <div className="flex gap-[34px] items-center">
+    <a
+      href="#"
+      className="text-[12px] font-normal text-white uppercase underline leading-[1.1]"
+      style={{ letterSpacing: "-0.04em" }}
+    >
+      licences
+    </a>
+    <a
+      href="#"
+      className="text-[12px] font-normal text-white uppercase underline leading-[1.1]"
+      style={{ letterSpacing: "-0.04em" }}
+    >
+      Privacy policy
+    </a>
+  </div>
+);
+
+export default async function Footer() {
+  const settings = await getSettings();
+
+  const ctaText = settings?.footerCta ?? "Have a project in mind?";
+  const socials = [
+    { label: "Facebook", href: settings?.socialFacebook ?? "#" },
+    { label: "Instagram", href: settings?.socialInstagram ?? "#" },
+    { label: "X.com", href: settings?.socialXcom ?? "#" },
+    { label: "Linkedin", href: settings?.socialLinkedin ?? "#" },
+  ];
+
+  const [ctaFirst, ...ctaRest] = ctaText.split(" ");
+  const boldWord = ctaRest.find((w) => /project/i.test(w));
+  const ctaBefore = ctaFirst + " ";
+  const ctaAfterBold = boldWord
+    ? ctaText.slice(ctaText.indexOf(boldWord) + boldWord.length)
+    : "";
 
   const CtaBlock = () => (
     <div className="flex flex-col gap-3 w-[298px]">
@@ -26,9 +57,15 @@ export default function Footer() {
         className="text-[24px] font-light italic text-white uppercase leading-[1.1]"
         style={{ letterSpacing: "-0.04em" }}
       >
-        Have a{" "}
-        <span className="font-black not-italic">project</span>
-        {" "}in mind?
+        {boldWord ? (
+          <>
+            {ctaBefore}
+            <span className="font-black not-italic">{boldWord}</span>
+            {ctaAfterBold}
+          </>
+        ) : (
+          ctaText
+        )}
       </p>
       <a
         href="#"
@@ -50,12 +87,12 @@ export default function Footer() {
           <div className="flex flex-col gap-4">
             {socials.map((s) => (
               <a
-                key={s}
-                href="#"
+                key={s.label}
+                href={s.href}
                 className="text-[18px] font-normal text-white uppercase leading-[1.1]"
                 style={{ letterSpacing: "-0.04em" }}
               >
-                {s}
+                {s.label}
               </a>
             ))}
           </div>
@@ -64,7 +101,6 @@ export default function Footer() {
 
         {/* Bottom: legal (centered) + label + H.Studio */}
         <div className="flex flex-col gap-4 overflow-hidden items-center">
-          {/* Legal links centered; pb-8 + gap-4 = 48px → matches divider-to-legal spacing */}
           <div className="flex gap-[34px] items-center pb-8">
             <a
               href="#"
@@ -81,7 +117,6 @@ export default function Footer() {
               Privacy policy
             </a>
           </div>
-          {/* Label + H.Studio — left-aligned, full width */}
           <div className="flex flex-col gap-3 w-full overflow-hidden">
             <p className="font-mono text-[10px] text-white uppercase leading-[1.1]">
               [ Coded By Claude ]
@@ -105,46 +140,47 @@ export default function Footer() {
 
             {/* Center socials */}
             <div className="text-center w-[298px]">
-              <p
-                className="text-[18px] font-normal text-white uppercase leading-[1.1]"
+              <a
+                href={socials[0].href}
+                className="block text-[18px] font-normal text-white uppercase leading-[1.1]"
                 style={{ letterSpacing: "-0.04em" }}
               >
-                Facebook
-              </p>
-              <p
-                className="text-[18px] font-normal text-white uppercase leading-[1.1]"
+                {socials[0].label}
+              </a>
+              <a
+                href={socials[1].href}
+                className="block text-[18px] font-normal text-white uppercase leading-[1.1]"
                 style={{ letterSpacing: "-0.04em" }}
               >
-                Instagram
-              </p>
+                {socials[1].label}
+              </a>
             </div>
 
             {/* Right socials */}
             <div className="text-right w-[298px]">
-              <p
-                className="text-[18px] font-normal text-white uppercase leading-[1.1]"
+              <a
+                href={socials[2].href}
+                className="block text-[18px] font-normal text-white uppercase leading-[1.1]"
                 style={{ letterSpacing: "-0.04em" }}
               >
-                X.com
-              </p>
-              <p
-                className="text-[18px] font-normal text-white uppercase leading-[1.1]"
+                {socials[2].label}
+              </a>
+              <a
+                href={socials[3].href}
+                className="block text-[18px] font-normal text-white uppercase leading-[1.1]"
                 style={{ letterSpacing: "-0.04em" }}
               >
-                Linkedin
-              </p>
+                {socials[3].label}
+              </a>
             </div>
           </div>
 
-          {/* Divider */}
           <div className="w-full h-px bg-white/20" />
         </div>
 
         {/* Bottom: H.Studio + legal */}
         <div className="flex items-end justify-between">
-          {/* H.Studio clipped container */}
           <div className="relative h-[219px] overflow-hidden shrink-0" style={{ width: 1093 }}>
-            {/* Rotated label */}
             <div
               className="absolute left-0 flex items-center justify-center"
               style={{ width: 15, top: "calc(50% - 75.5px)", height: 160 }}
@@ -154,7 +190,6 @@ export default function Footer() {
               </span>
             </div>
 
-            {/* Large H.Studio */}
             <p
               className="absolute text-white font-semibold capitalize leading-[0.8] whitespace-nowrap"
               style={{
@@ -169,7 +204,6 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Legal links — bottom-right */}
           <div className="pb-8">
             <LegalLinks />
           </div>
