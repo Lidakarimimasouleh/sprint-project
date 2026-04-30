@@ -23,15 +23,15 @@ const QUERY = `*[_type == "service"] | order(order asc) { title, description, im
 export default async function ServicesSection() {
   const sanityServices = await client.fetch(QUERY);
 
-  const services: ServiceItem[] =
-    sanityServices.length > 0
-      ? sanityServices.map((s: { title: string; description: string; image: object }, i: number) => ({
-          number: String(i + 1),
-          name: s.title,
-          description: s.description ?? DEFAULT_DESC,
-          image: imageUrlFor(s.image).width(300).url(),
-        }))
-      : FALLBACK;
+  const mapped = sanityServices
+    .filter((s: { image: object | null }) => s.image != null)
+    .map((s: { title: string; description: string; image: object }, i: number) => ({
+      number: String(i + 1),
+      name: s.title,
+      description: s.description ?? DEFAULT_DESC,
+      image: imageUrlFor(s.image).width(300).url(),
+    }));
+  const services: ServiceItem[] = mapped.length > 0 ? mapped : FALLBACK;
 
   return (
     <section className="w-full bg-black text-white py-[80px] px-4 md:px-8">

@@ -70,14 +70,14 @@ function CTABox() {
 export default async function PortfolioSection() {
   const sanityProjects = await client.fetch(QUERY);
 
-  const projects: Project[] =
-    sanityProjects.length > 0
-      ? sanityProjects.map((p: { image: object; tags: string[]; title: string }) => ({
-          image: imageUrlFor(p.image).width(800).url(),
-          chips: p.tags ?? [],
-          title: p.title,
-        }))
-      : FALLBACK;
+  const mapped = sanityProjects
+    .filter((p: { image: object | null }) => p.image != null)
+    .map((p: { image: object; tags: string[]; title: string }) => ({
+      image: imageUrlFor(p.image).width(800).url(),
+      chips: p.tags ?? [],
+      title: p.title,
+    }));
+  const projects: Project[] = mapped.length > 0 ? mapped : FALLBACK;
 
   return (
     <section className="w-full bg-white py-[80px] px-4 md:px-8">

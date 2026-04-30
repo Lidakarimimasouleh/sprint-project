@@ -61,17 +61,18 @@ function TestimonialCard({ logo, logoW, logoH, quote, author, rotate, width = 35
 export default async function TestimonialsSection() {
   const sanityTestimonials = await client.fetch(QUERY);
 
-  const testimonials: Testimonial[] =
-    sanityTestimonials.length > 0
-      ? sanityTestimonials.slice(0, 4).map((t: { logo: object; quote: string; author: string }, i: number) => ({
-          logo: imageUrlFor(t.logo).height(80).url(),
-          logoW: 120,
-          logoH: 32,
-          quote: t.quote,
-          author: t.author,
-          ...POSITIONS[i % POSITIONS.length],
-        }))
-      : FALLBACK;
+  const mapped = sanityTestimonials
+    .filter((t: { logo: object | null }) => t.logo != null)
+    .slice(0, 4)
+    .map((t: { logo: object; quote: string; author: string }, i: number) => ({
+      logo: imageUrlFor(t.logo).height(80).url(),
+      logoW: 120,
+      logoH: 32,
+      quote: t.quote,
+      author: t.author,
+      ...POSITIONS[i % POSITIONS.length],
+    }));
+  const testimonials: Testimonial[] = mapped.length > 0 ? mapped : FALLBACK;
 
   const mobileFirst = testimonials[0];
   const mobileSecond = testimonials[3] ?? testimonials[1];
