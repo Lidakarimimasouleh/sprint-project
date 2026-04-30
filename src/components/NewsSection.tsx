@@ -46,13 +46,13 @@ function NewsCard({ image, caption }: NewsItem) {
 export default async function NewsSection() {
   const sanityPosts = await client.fetch(QUERY);
 
-  const news: NewsItem[] =
-    sanityPosts.length > 0
-      ? sanityPosts.map((p: { image: object; caption: string }) => ({
-          image: imageUrlFor(p.image).width(800).url(),
-          caption: p.caption,
-        }))
-      : FALLBACK;
+  const mapped = sanityPosts
+    .filter((p: { image: object | null }) => p.image != null)
+    .map((p: { image: object; caption: string }) => ({
+      image: imageUrlFor(p.image).width(800).url(),
+      caption: p.caption,
+    }));
+  const news: NewsItem[] = mapped.length > 0 ? mapped : FALLBACK;
 
   return (
     <section className="w-full bg-[#f3f3f3]">

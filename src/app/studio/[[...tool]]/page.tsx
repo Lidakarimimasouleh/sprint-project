@@ -1,17 +1,10 @@
-import type { Metadata, Viewport } from "next";
-import StudioLoader from "./StudioLoader";
+import { NextStudio } from "next-sanity/studio";
+import config from "../../../../sanity.config";
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  viewportFit: "cover",
-};
+export const dynamic = "force-static";
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export { metadata, viewport } from "next-sanity/studio";
 
 export default function StudioPage() {
-  return <StudioLoader />;
+  return <NextStudio config={config} />;
 }
